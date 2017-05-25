@@ -42,6 +42,12 @@ class AmazonSpider(scrapy.Spider):
         yield item
 
 
+def from_file(filename):
+    with open(filename) as f:
+        url_list = f.readlines()
+    return url_list
+
+
 def main():
     from scrapy.crawler import CrawlerProcess
     from scrapy.utils.project import get_project_settings
@@ -49,10 +55,11 @@ def main():
 
     url_list = [
         # QQ 扫码得到的链接
-        "http://qm.qq.com/cgi-bin/result?r=9787111527503&p=i&v=7.0.1.407",
+        # "http://qm.qq.com/cgi-bin/result?r=9787302444060&p=i&v=7.0.1.407",
     ]
-
-    isbn_list = [re.search('r=(.*?)&', url).group(1) for url in url_list]
+    # or from file
+    url_list = set(url_list + from_file('list.txt'))
+    isbn_list = [re.search('r=(\d*)', url).group(1) for url in url_list]
     print(isbn_list)
     settings = {**get_project_settings(), 'FEED_FORMAT': 'csv', 'FEED_URI': 'books.csv'}
     process = CrawlerProcess(settings)
